@@ -66,20 +66,21 @@ for(t in (test_row-1):(end_row-1)) { #loop from 2007Q1 to 2011Q4 for estimation
   fe<-accuracy(fc,testdata[,1])
   rmse_var[tt]<-fe[,"RMSE"]
   varf[tt]<-fc
+  actual[tt] <- testdata[,1][1]
   
   #AR(3) estimation and forecasting
   ar3<-Arima(training[,1],c(3,0,0)) #AR(3) for dp arima(p,d,q)
   fc1 <- forecast(ar3, nfor) #forecast from AR
   fe1<-accuracy(fc1,testdata[,1]) #RMSE
   rmse_ar[tt]<-fe1[,"RMSE"][2]
-  arf[tt] <- fc1
+  arf[tt] <- fc1$mean[nfor]
   
   #MA(1) model
   ma3<-Arima(training[,1],c(0,0,3)) #MA(3) for dp arima(p,d,q)
   fc1 <- forecast(ma3, nfor) #forecast from MA
   fe1<-accuracy(fc1,testdata[,1]) #RMSE
   rmse_ma[tt]<-fe1[,"RMSE"][2]
-  maf[tt] <- fc1
+  maf[tt] <- fc1$mean[nfor]
   
   # shift forward a quarter for next loop
   tt=tt+1
@@ -90,8 +91,10 @@ colnames(rmse_df) <- c("VAR", "AR", "MA")
 rmse <- ts(rmse_df, start=dd[test_row], frequency=4)
 
 f_df <- data.frame(varf, arf, maf, actual)
-colnames(f_df) <- c("TARF", "STARF", "ARF", "Average", "Actual")
+colnames(f_df) <- c("VARF", "ARF", "MAF", "Actual")
 forecast <- ts(f_df, start=dd[test_row],frequency=4)
+
+head(f_df)
 
 # plots
 df_rmse <- data.frame(date=as.Date(as.yearqtr(time(rmse))), as.matrix(rmse))
@@ -101,4 +104,13 @@ df_rmse <- df_rmse %>%
 df_rmse %>%
   ggplot(aes(x = date, y = RMSE, group = Model, colour = Model)) + 
   geom_line() +
-  labs(title = "RMSE of single variable inflation models 2018 Q1 - 2021 Q3")
+  labs(title = "RMSE of multi variable inflation models + baseline 2018 Q1 - 2021 Q3")
+
+df_forecast <- data.frame(date=as.Date(as.yearqtr(time(forecast))), as.matrix(forecast))
+head(df_forecast)
+df_forecast <- df_forecast %>%
+  pivot_longer(!date, values_to = "forecast", names_to = "Model")
+df_forecast %>%
+  ggplot(aes(x = date, y = forecast, group = Model, colour = Model)) + 
+  geom_line() + 
+  labs(title = "Forecasts of multi variable inflation models + baseline 2018 Q1 - 2021 Q3")
