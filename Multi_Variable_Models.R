@@ -106,6 +106,8 @@ df_rmse %>%
   geom_line() +
   labs(title = "RMSE of multi variable inflation models + baseline 2018 Q1 - 2021 Q3")
 
+ggsave("Plots/multivar_RMSE_comparison", device ="png")
+
 df_forecast <- data.frame(date=as.Date(as.yearqtr(time(forecast))), as.matrix(forecast))
 head(df_forecast)
 df_forecast <- df_forecast %>%
@@ -114,3 +116,6 @@ df_forecast %>%
   ggplot(aes(x = date, y = forecast, group = Model, colour = Model)) + 
   geom_line() + 
   labs(title = "Forecasts of multi variable inflation models + baseline 2018 Q1 - 2021 Q3")
+
+ggsave("Plots/multivar_forecast_comparison", device ="png")
+
