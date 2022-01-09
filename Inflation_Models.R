@@ -97,18 +97,13 @@ for(t in (test_row-1):(end_row-1)) { #loop from 2018Q1 to 2021Q3 for estimation 
   tt=tt+1
 }
 
-rmse1<-ts(rmse_tar,start=dd[test_row],frequency=4)
-rmse2<-ts(rmse_star,start=dd[test_row],frequency=4)
-rmse3<-ts(rmse_ar,start=dd[test_row],frequency=4)
-rmse4<-ts(rmse_av,start=dd[test_row],frequency=4)
-tarf<-ts(tarf,start=dd[test_row],frequency=4)
-starf<-ts(starf,start=dd[test_row],frequency=4)
-arf<-ts(arf,start=dd[test_row],frequency=4)
-avf<-ts(avf,start=dd[test_row],frequency=4)
-outturn<-ts(outturn,start=dd[test_row],frequency=4)
+rmse_df <- data.frame(rmse_tar, rmse_star, rmse_ar, rmse_av)
+colnames(rmse_df) <- c("TAR", "STAR", "AR", "Average")
+rmse <- ts(rmse_df, start=dd[test_row], frequency=4)
 
-rmse <- ts(cbind(rmse1, rmse2, rmse3, rmse4), start=dd[test_row],frequency=4)
-forecast <- ts(cbind(tarf, starf, arf, avf, outturn), start=dd[test_row],frequency=4)
+f_df <- data.frame(tarf, starf, arf, avf, outturn)
+colnames(f_df) <- c("TARF", "STARF", "ARF", "Average", "Actual")
+forecast <- ts(f_df, start=dd[test_row],frequency=4)
 
 # clean up these plots
 autoplot(rmse, facets=FALSE)
@@ -117,7 +112,7 @@ autoplot(forecast, facets = FALSE)
 df_rmse <- data.frame(date=as.Date(as.yearqtr(time(rmse))), as.matrix(rmse))
 head(df_rmse)
 df_rmse <- df_rmse %>%
-  pivot_longer(starts_with("RMSE"), values_to = "RMSE", names_to = "Model")
+  pivot_longer(!date, values_to = "RMSE", names_to = "Model")
 df_rmse %>%
   ggplot(aes(x = date, y = RMSE, group = Model, colour = Model)) + 
   geom_line() +
