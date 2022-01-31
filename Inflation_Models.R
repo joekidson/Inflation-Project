@@ -118,6 +118,8 @@ df_rmse %>%
   geom_line() +
   labs(title = "RMSE of single variable inflation models 2018 Q1 - 2021 Q3")
 
+ggsave("Plots/singlevar_RMSE_comparison", device ="png")
+
 df_forecast <- data.frame(date=as.Date(as.yearqtr(time(forecast))), as.matrix(forecast))
 head(df_forecast)
 df_forecast <- df_forecast %>%
@@ -126,6 +128,8 @@ df_forecast %>%
   ggplot(aes(x = date, y = forecast, group = Model, colour = Model)) + 
   geom_line() + 
   labs(title = "Forecasts of single variable inflation models 2018 Q1 - 2021 Q3")
+
+ggsave("Plots/singlevar_forecast_comparison", device ="png")
 
 # create plot of future forecast.
 # should be class code for this
